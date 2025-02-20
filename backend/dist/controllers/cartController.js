@@ -8,22 +8,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkout = exports.removeFromCart = exports.getCart = exports.addToCart = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
 const cartModel_1 = require("../models/cartModel");
-const data_1 = require("../data");
+const orderModel_1 = require("../models/orderModel");
+const productModel_1 = require("../models/productModel");
+/**
+ * @route POST /api/cart/add
+ * @desc Add an item to the cart
+ * @access Public
+ */
 const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, productId, quantity } = req.body;
     try {
-        if (!userId || !productId || quantity <= 0) {
+        const { productId, quantity } = req.body;
+        if (!productId || quantity <= 0) {
             res.status(400).json({ message: "Invalid input data" });
             return;
         }
-        let cart = yield cartModel_1.Cart.findOne({ userId });
-        if (!cart) {
-            cart = new cartModel_1.Cart({ userId, items: [] });
+        if (!mongoose_1.default.Types.ObjectId.isValid(productId)) {
+            res.status(400).json({ message: "Invalid productId format" });
+            return;
         }
-        const product = data_1.Products.find((p) => p.model === productId);
+        let cart = yield cartModel_1.Cart.findOne();
+        if (!cart) {
+            cart = new cartModel_1.Cart({ items: [] });
+        }
+        const product = yield productModel_1.Product.findById(productId);
         if (!product) {
             res.status(404).json({ message: "Product not found" });
             return;
@@ -33,21 +47,29 @@ const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             cart.items[itemIndex].quantity += quantity;
         }
         else {
-            cart.items.push({ productId, quantity });
+            cart.items.push({
+                //@ts-ignore
+                productId: new mongoose_1.default.Types.ObjectId(productId),
+                quantity,
+            });
         }
         yield cart.save();
-        res.status(200).json(cart);
+        res.status(200).json({ message: "Item added to cart", cart });
     }
     catch (error) {
+        console.error("Error adding to cart:", error.message);
         res.status(500).json({ message: "Error adding to cart", error });
     }
 });
 exports.addToCart = addToCart;
-// 📦 Get cart items
+/**
+ * @route GET /cart
+ * @desc Get the cart
+ * @access Public
+ */
 const getCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId } = req.query;
-        const cart = yield cartModel_1.Cart.findOne({ userId }).populate("items.productId");
+        const cart = yield cartModel_1.Cart.findOne().populate("items.productId");
         if (!cart) {
             res.status(404).json({ message: "Cart not found" });
             return;
@@ -55,15 +77,26 @@ const getCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(200).json(cart);
     }
     catch (error) {
+        console.error("Error fetching cart:", error.message);
         res.status(500).json({ message: "Error fetching cart", error });
     }
 });
 exports.getCart = getCart;
+/**
+ * @route DELETE /cart/remove/:id
+ * @desc Remove an item from the cart
+ * @access Public
+ */
 const removeFromCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.body;
-    const { id: productId } = req.params;
     try {
-        const cart = yield cartModel_1.Cart.findOneAndUpdate({ userId }, { $pull: { items: { productId } } }, { new: true });
+        const productId = req.params.id;
+        if (!mongoose_1.default.Types.ObjectId.isValid(productId)) {
+            res.status(400).json({ message: "Invalid product ID" });
+            return;
+        }
+        const cart = yield cartModel_1.Cart.findOneAndUpdate({}, {
+            $pull: { items: { productId: new mongoose_1.default.Types.ObjectId(productId) } },
+        }, { new: true });
         if (!cart) {
             res.status(404).json({ message: "Cart not found" });
             return;
@@ -71,39 +104,53 @@ const removeFromCart = (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(200).json({ message: "Item removed", cart });
     }
     catch (error) {
+        console.error("Error removing item from cart:", error.message);
         res.status(500).json({ message: "Error removing item", error });
     }
 });
 exports.removeFromCart = removeFromCart;
-// ✅ Checkout and place order
+/**
+ * @route POST /cart/checkout
+ * @desc Checkout the cart and create an order
+ * @access Public
+ */
 const checkout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId } = req.body;
-        // Fetch the cart with product details populated
-        const cart = yield cartModel_1.Cart.findOne({ userId }).populate("items.productId");
+        const { address } = req.body;
+        if (!address ||
+            !address.street ||
+            !address.city ||
+            !address.state ||
+            !address.zip) {
+            res.status(400).json({ message: "Address is required" });
+            return;
+        }
+        const cart = yield cartModel_1.Cart.findOne().populate("items.productId");
         if (!cart || !cart.items || cart.items.length === 0) {
             res.status(400).json({ message: "Cart is empty" });
             return;
         }
-        // Calculate total price
-        const totalAmount = cart.items.reduce((acc, item) => {
-            const product = item.productId; // Type assertion for populated product
-            return acc + (product.price || 0) * item.quantity;
-        }, 0);
-        // Create order object
-        const order = {
-            userId: cart.userId,
-            items: cart.items,
-            total: totalAmount,
+        const orderItems = cart.items.map((item) => {
+            const product = item.productId;
+            return {
+                productId: product._id,
+                quantity: item.quantity,
+                price: product.price,
+            };
+        });
+        const totalAmount = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        const order = new orderModel_1.Order({
+            items: orderItems,
+            totalAmount,
+            address,
             orderDate: new Date(),
-        };
-        // Clear the cart after checkout
-        yield cartModel_1.Cart.findOneAndUpdate({ userId }, { items: [] });
-        res
-            .status(200)
-            .json({ message: "Order placed successfully", order });
+        });
+        yield order.save();
+        yield cartModel_1.Cart.findOneAndUpdate({}, { items: [] });
+        res.status(200).json({ message: "Order placed successfully", order });
     }
     catch (error) {
+        console.error("Error during checkout:", error.message);
         res.status(500).json({ message: "Error during checkout", error });
     }
 });

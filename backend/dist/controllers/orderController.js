@@ -10,21 +10,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserOrders = exports.placeOrder = void 0;
+const productModel_1 = require("../models/productModel");
 const orderModel_1 = require("../models/orderModel");
 const cartModel_1 = require("../models/cartModel");
-const data_1 = require("../data"); // Array of product objects
 const placeOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId, paymentMethod, shippingAddress } = req.body;
+        if (!req.user) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        const { paymentMethod, shippingAddress } = req.body;
+        const userId = req.user.id;
         // Fetch user's cart
-        const cart = yield cartModel_1.Cart.findOne({ userId }).populate("items.productId");
-        if (!cart || cart.items.length === 0) {
+        const cart = yield cartModel_1.Cart.findOne({ userId })
+            .populate("items.productId")
+            .exec();
+        if (!cart || !cart.items || cart.items.length === 0) {
+            // ✅ Ensure items exist
             res.status(400).json({ message: "Cart is empty" });
             return;
         }
         // Check stock availability
         for (const item of cart.items) {
-            const product = data_1.Products.find((p) => p.model === item.productId.toString());
+            const product = yield productModel_1.Product.findById(item.productId);
             if (!product || product.stock < item.quantity) {
                 res.status(400).json({
                     message: `Insufficient stock for ${(product === null || product === void 0 ? void 0 : product.model) || "product"}`,
@@ -34,49 +42,53 @@ const placeOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         }
         // Deduct stock
         for (const item of cart.items) {
-            const product = data_1.Products.find((p) => p.model === item.productId.toString());
-            if (product) {
-                product.stock -= item.quantity;
-            }
+            yield productModel_1.Product.findByIdAndUpdate(item.productId, {
+                $inc: { stock: -item.quantity },
+            });
         }
         // Create order
         const newOrder = new orderModel_1.Order({
             userId,
-            items: cart.items.map((item) => {
-                var _a;
-                return ({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                    price: ((_a = data_1.Products.find((p) => p.model === item.productId.toString())) === null || _a === void 0 ? void 0 : _a.price) ||
-                        0,
-                });
-            }),
-            totalAmount: cart.items.reduce((acc, item) => {
-                const product = data_1.Products.find((p) => p.model === item.productId.toString());
-                return acc + ((product === null || product === void 0 ? void 0 : product.price) || 0) * item.quantity;
-            }, 0),
+            items: cart.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.productId.price,
+            })),
+            totalAmount: cart.items.reduce((acc, item) => acc + item.productId.price * item.quantity, 0),
             paymentMethod,
             shippingAddress,
             status: "Pending",
         });
         yield newOrder.save();
-        // Clear cart
         yield cartModel_1.Cart.findOneAndUpdate({ userId }, { items: [] });
         res
             .status(201)
             .json({ message: "Order placed successfully", order: newOrder });
     }
     catch (error) {
+        console.error("Error placing order:", error.message);
         res.status(500).json({ message: "Error placing order", error });
     }
 });
 exports.placeOrder = placeOrder;
+// 📜 Get User Orders
 const getUserOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const orders = yield orderModel_1.Order.find({ userId: req.query.userId }).populate("items.productId");
+        if (!req.user) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        const orders = yield orderModel_1.Order.find({ userId: req.user.id })
+            .populate("items.productId")
+            .exec();
+        if (!orders.length) {
+            res.status(404).json({ message: "No orders found" });
+            return;
+        }
         res.status(200).json(orders);
     }
     catch (error) {
+        console.error("Error fetching orders:", error.message);
         res.status(500).json({ message: "Error fetching orders", error });
     }
 });

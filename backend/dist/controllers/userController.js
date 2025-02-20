@@ -11,17 +11,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPurchase = exports.getUserProfile = void 0;
 const userModel_1 = require("../models/userModel");
-const orderModel_1 = require("../models/orderModel"); // Ensure you have an Order model
+const orderModel_1 = require("../models/orderModel");
 // 🧑‍💼 Get User Profile
 const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield userModel_1.User.findById(req.user.id);
+        // Ensure the user is authenticated
+        if (!req.user || !req.user.id) {
+            res.status(401).json({ error: "Unauthorized access" });
+            return;
+        }
+        // Fetch the user from the database, excluding the password
+        const user = yield userModel_1.User.findById(req.user.id).select("-password");
         if (!user) {
             res.status(404).json({ error: "User not found" });
+            return;
         }
+        // Return the user profile data
         res.status(200).json(user);
     }
     catch (error) {
+        console.error("Error fetching user profile:", error.message);
         res.status(500).json({ error: "Error fetching user profile" });
     }
 });

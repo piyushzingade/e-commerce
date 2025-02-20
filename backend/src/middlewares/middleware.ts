@@ -1,21 +1,30 @@
-import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import { User } from "../models/userModel";
 
-export default function authMiddleware(
-  req: Request,
+
+export interface AuthRequest extends Request {
+  user?: any;
+}
+
+export const authMiddleware = async (
+  req: AuthRequest,
   res: Response,
   next: NextFunction
-) {
+) => {
   const token = req.header("token");
+
   if (!token) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
+     res.status(401).json({ message: "No token, authorization denied" });
+     return;
   }
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    req.user = decoded as any; // Add `user` to request object
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+    req.user = await User.findById(decoded.id).select("-password"); // Attach user to request
+    console.log("✅ Authenticated User:", req.user);
     next();
-  } catch {
-    res.status(401).json({ error: "Invalid token" });
+  } catch (error) {
+     res.status(401).json({ message: "Invalid token" });
   }
-}
+};

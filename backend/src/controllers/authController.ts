@@ -5,10 +5,22 @@ import { User } from "../models/userModel";
 
 
 export const signup = async (req: Request, res: Response) => {
-  const { email, password, name } = req.body;
   try {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
+       res.status(400).json({ error: "All fields are required" });
+       return;
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ email, password: hashedPassword, name });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+       res.status(400).json({ error: "User already exists" });
+       return;
+    }
+
+    const user = await User.create({ email, password: hashedPassword, name });
+
     await user.save();
 
     res.status(201).json({ message: "User created successfully" });
@@ -31,7 +43,7 @@ export const signin = async (req: Request, res: Response) => {
       return;
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
-      expiresIn: "1h",
+      expiresIn: "10h",
     });
     res.status(200).json({ token });
   } catch (error) {
@@ -39,6 +51,14 @@ export const signin = async (req: Request, res: Response) => {
   }
 };
 
-// export const googleAuth = async (req: Request, res: Response) => {
-//   // Implement Google Auth logic here
-// };
+
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error: any) {
+    console.log("Error in logout controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
