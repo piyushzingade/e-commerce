@@ -23,13 +23,13 @@ router.get("/products/:productId", authMiddleware, getProductById);
 
 // 🛒 Cart Routes
 router.post("/cart/add" ,  addToCart);
-router.get("/cart", getCart);
+router.get("/cart",  getCart);
 router.delete("/cart/remove/:id", removeFromCart);
 router.post("/cart/checkout", checkout);
 
 // 🛍 Order Routes
-router.post("/order", authMiddleware ,  placeOrder);
-router.get("/orders",authMiddleware ,  getUserOrders);
+router.post("/order",   placeOrder);
+router.get("/orders" ,  getUserOrders);
 
 // // 💳 Payment Routes (Razorpay)
 // router.post("/payment/create", createRazorpayOrder);

@@ -8,31 +8,21 @@ interface AuthRequest extends Request {
 }
 
 
-export const placeOrder = async (req: AuthRequest, res: Response) => {
+export const placeOrder = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
     const { paymentMethod, shippingAddress } = req.body;
-    const userId = req.user.id;
 
-    // Fetch user's cart
-    const cart = await Cart.findOne({ userId })
-      .populate("items.productId")
-      .exec();
+    // Fetch cart (global cart for all users — no user filter)
+    const cart = await Cart.findOne().populate("items.productId").exec();
     if (!cart || !cart.items || cart.items.length === 0) {
-      // ✅ Ensure items exist
-      res.status(400).json({ message: "Cart is empty" });
-      return;
+       res.status(400).json({ message: "Cart is empty" });
+       return;
     }
 
-    // Check stock availability
     for (const item of cart.items) {
       const product = await Product.findById(item.productId);
       if (!product || product.stock < item.quantity) {
-        res.status(400).json({
+         res.status(400).json({
           message: `Insufficient stock for ${product?.model || "product"}`,
         });
         return;
@@ -46,26 +36,26 @@ export const placeOrder = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // Create order
     const newOrder = new Order({
-      userId,
+      // No userId needed
       items: cart.items.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
-        price: (item.productId as any).price, 
+        price: (item.productId as any).price,
       })),
       totalAmount: cart.items.reduce(
         (acc, item) => acc + (item.productId as any).price * item.quantity,
         0
       ),
       paymentMethod,
-      shippingAddress,
+      shippingAddress, // Correctly received
       status: "Pending",
     });
 
     await newOrder.save();
 
-    await Cart.findOneAndUpdate({ userId }, { items: [] });
+    // Clear cart after order
+    await Cart.findOneAndUpdate({}, { items: [] });
 
     res
       .status(201)
@@ -76,17 +66,11 @@ export const placeOrder = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// 📜 Get User Orders
-export const getUserOrders = async (req: AuthRequest, res: Response) => {
-  try {
-    if (!req.user) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
-    }
 
-    const orders = await Order.find({ userId: req.user.id })
-      .populate("items.productId")
-      .exec();
+
+export const getUserOrders = async (req: Request, res: Response) => {
+  try {
+    const orders = await Order.find().populate("items.productId").exec();
 
     if (!orders.length) {
       res.status(404).json({ message: "No orders found" });

@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./components/AuthContext";
 import CartPage from "./pages/CartPage";
 import OrderPage from "./pages/OrderPage";
+import OrdersPage from "./pages/OrdersPage";
 
 function App() {
   return (
@@ -55,6 +56,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <OrderPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <OrdersPage />
                 </Layout>
               </ProtectedRoute>
             }

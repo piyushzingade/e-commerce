@@ -31,7 +31,6 @@ const OrderSchema = new mongoose_1.Schema({
     userId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
-        required: true,
     },
     items: [
         {
@@ -45,7 +44,8 @@ const OrderSchema = new mongoose_1.Schema({
         },
     ],
     totalAmount: { type: Number, required: true },
-    address: {
+    shippingAddress: {
+        // ✅ Updated field name
         street: { type: String, required: true },
         city: { type: String, required: true },
         state: { type: String, required: true },
@@ -64,15 +64,17 @@ const OrderSchema = new mongoose_1.Schema({
     },
 }, { timestamps: true });
 exports.Order = mongoose_1.default.model("Order", OrderSchema);
+// Zod Schema
 exports.orderSchema = zod_1.z.object({
-    userId: zod_1.z.string().min(1, "User ID is required"),
+    userId: zod_1.z.string().optional(), // Optional if no user login
     items: zod_1.z.array(zod_1.z.object({
         productId: zod_1.z.string().min(1, "Product ID is required"),
         quantity: zod_1.z.number().min(1, "Quantity must be at least 1"),
         price: zod_1.z.number().min(1, "Price must be greater than 0"),
     })),
     totalAmount: zod_1.z.number().min(1, "Total amount must be greater than 0"),
-    address: zod_1.z.object({
+    shippingAddress: zod_1.z.object({
+        // ✅ Matches the mongoose schema
         street: zod_1.z.string().min(1, "Street is required"),
         city: zod_1.z.string().min(1, "City is required"),
         state: zod_1.z.string().min(1, "State is required"),

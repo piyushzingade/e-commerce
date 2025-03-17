@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 interface Processor {
   _id: string;
@@ -48,16 +51,15 @@ const ProcessorPage = () => {
       );
 
       // ✅ Force re-fetch of cart data
-      alert("Added to the cart")
+      toast.success("Added to the cart!");
       window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Error adding to cart:", error);
-      alert("error")
+      toast.error("Failed to add item to cart.");
     } finally {
       setCartLoading((prev) => ({ ...prev, [productId]: false }));
     }
   };
-
 
   if (loading) {
     return (

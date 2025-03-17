@@ -3,14 +3,15 @@ import { z } from "zod";
 
 // Interface for Type Safety
 export interface IOrder extends Document {
-  userId: mongoose.Schema.Types.ObjectId;
+  userId?: mongoose.Schema.Types.ObjectId; // Optional if not logged in
   items: {
     productId: mongoose.Schema.Types.ObjectId;
     quantity: number;
     price: number;
   }[];
   totalAmount: number;
-  address: {
+  shippingAddress: {
+    // ✅ Rename to shippingAddress
     street: string;
     city: string;
     state: string;
@@ -27,7 +28,6 @@ const OrderSchema: Schema = new Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     items: [
       {
@@ -41,7 +41,8 @@ const OrderSchema: Schema = new Schema(
       },
     ],
     totalAmount: { type: Number, required: true },
-    address: {
+    shippingAddress: {
+      // ✅ Updated field name
       street: { type: String, required: true },
       city: { type: String, required: true },
       state: { type: String, required: true },
@@ -64,9 +65,9 @@ const OrderSchema: Schema = new Schema(
 
 export const Order = mongoose.model<IOrder>("Order", OrderSchema);
 
-
+// Zod Schema
 export const orderSchema = z.object({
-  userId: z.string().min(1, "User ID is required"),
+  userId: z.string().optional(), // Optional if no user login
   items: z.array(
     z.object({
       productId: z.string().min(1, "Product ID is required"),
@@ -75,7 +76,8 @@ export const orderSchema = z.object({
     })
   ),
   totalAmount: z.number().min(1, "Total amount must be greater than 0"),
-  address: z.object({
+  shippingAddress: z.object({
+    // ✅ Matches the mongoose schema
     street: z.string().min(1, "Street is required"),
     city: z.string().min(1, "City is required"),
     state: z.string().min(1, "State is required"),

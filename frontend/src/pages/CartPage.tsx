@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
+import { useNavigate } from "react-router-dom";
 
 interface CartItem {
   productId: {
@@ -15,6 +16,7 @@ interface CartItem {
 const CartPage = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const  navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -81,7 +83,11 @@ const CartPage = () => {
           <span>₹{subtotal.toFixed(2)}</span>
         </div>
       </div>
-      <button className="w-full bg-blue-500 text-white py-3 mt-6 text-lg font-bold rounded-md shadow-md hover:bg-blue-600">
+      <button 
+        onClick={ () => {
+          navigate("/order")
+        }}
+        className="w-full bg-blue-500 text-white py-3 mt-6 text-lg font-bold rounded-md shadow-md hover:bg-blue-600">
         Proceed To Buy
       </button>
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">

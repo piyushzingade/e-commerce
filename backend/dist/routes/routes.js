@@ -27,8 +27,8 @@ router.get("/cart", cartController_1.getCart);
 router.delete("/cart/remove/:id", cartController_1.removeFromCart);
 router.post("/cart/checkout", cartController_1.checkout);
 // 🛍 Order Routes
-router.post("/order", middleware_1.authMiddleware, orderController_1.placeOrder);
-router.get("/orders", middleware_1.authMiddleware, orderController_1.getUserOrders);
+router.post("/order", orderController_1.placeOrder);
+router.get("/orders", orderController_1.getUserOrders);
 // // 💳 Payment Routes (Razorpay)
 // router.post("/payment/create", createRazorpayOrder);
 // router.post("/payment/verify", verifyPayment);
