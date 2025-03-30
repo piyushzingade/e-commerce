@@ -29,14 +29,14 @@ export default function Navbar() {
         <Link to="/" className="bg-white p-2 md:p-3 rounded-lg shadow-md">
           <img src="/home.png" alt="Home" className="h-5 w-5 md:h-6 md:w-6" />
         </Link>
-        <Link to="/orders" className="bg-white p-2 md:p-3 rounded-lg shadow-md">
-          <img src="abc.png" alt="Orders" className="h-5 w-5 md:h-6 md:w-6" />
-        </Link>
         <Link
           to="/cart"
           className="relative bg-white p-2 md:p-3 rounded-lg shadow-md"
         >
           <img src="/cart.png" alt="Cart" className="h-5 w-5 md:h-6 md:w-6" />
+        </Link>
+        <Link to="/orders" className="bg-white p-2 md:p-3 rounded-lg shadow-md">
+          <img src="abc.png" alt="Orders" className="h-5 w-5 md:h-6 md:w-6" />
         </Link>
       </div>
     </div>

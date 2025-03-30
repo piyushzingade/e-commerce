@@ -1,24 +1,24 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 import { z } from "zod";
 
 // Interface for Type Safety
 export interface ICart extends Document {
-  userId: mongoose.Schema.Types.ObjectId;
-  items: { productId: mongoose.Schema.Types.ObjectId; quantity: number }[];
+  userId: Types.ObjectId;
+  items: { productId: Types.ObjectId; quantity: number }[];
 }
 
 // Mongoose Schema
 const CartSchema: Schema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "User",
       required: true,
     },
     items: [
       {
         productId: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: Types.ObjectId,
           ref: "Product",
           required: true,
         },

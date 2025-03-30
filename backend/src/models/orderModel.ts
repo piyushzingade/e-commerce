@@ -6,6 +6,7 @@ export interface IOrder extends Document {
   userId?: mongoose.Schema.Types.ObjectId; // Optional if not logged in
   items: {
     productId: mongoose.Schema.Types.ObjectId;
+    image: string
     quantity: number;
     price: number;
   }[];
@@ -36,6 +37,7 @@ const OrderSchema: Schema = new Schema(
           ref: "Product",
           required: true,
         },
+        image: { type : String , required : true},
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
       },
@@ -71,6 +73,7 @@ export const orderSchema = z.object({
   items: z.array(
     z.object({
       productId: z.string().min(1, "Product ID is required"),
+      image:z.string(),
       quantity: z.number().min(1, "Quantity must be at least 1"),
       price: z.number().min(1, "Price must be greater than 0"),
     })

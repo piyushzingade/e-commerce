@@ -62,10 +62,14 @@ export const addToCart = async (req: Request, res: Response) => {
  */
 export const getCart = async (req: Request, res: Response) => {
   try {
-    const cart = await Cart.findOne().populate("items.productId");
+    const cart = await Cart.findOne().populate({
+      path: "items.productId",
+      select: "name model price image", // Include 'image' field
+    });
+
     if (!cart) {
-      res.status(404).json({ message: "Cart not found" });
-      return;
+       res.status(404).json({ message: "Cart not found" });
+       return;
     }
 
     res.status(200).json(cart);
@@ -74,6 +78,7 @@ export const getCart = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching cart", error });
   }
 };
+
 
 /**
  * @route DELETE /cart/remove/:id

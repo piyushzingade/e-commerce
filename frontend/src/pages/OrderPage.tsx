@@ -12,14 +12,13 @@ interface CartItem {
     name: string;
     model: string;
     price: number;
+    image: string;
   };
   quantity: number;
 }
 
 export default function OrderPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  // Structured address fields to match the backend schema
   const [address, setAddress] = useState({
     street: "",
     city: "",
@@ -33,7 +32,6 @@ export default function OrderPage() {
 
   const navigate = useNavigate();
 
-  // Fetch cart items on load
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
@@ -43,7 +41,6 @@ export default function OrderPage() {
         console.error("Error fetching cart items:", err);
       }
     };
-
     fetchCartItems();
   }, []);
 
@@ -55,17 +52,15 @@ export default function OrderPage() {
     try {
       const { data } = await axios.post(`${BACKEND_URL}/api/order`, {
         paymentMethod,
-        shippingAddress: address, // ✅ Change this line
+        shippingAddress: address,
       });
 
-
       toast.success("Order placed successfully!");
-      setCartItems([]); // Clear cart in frontend
+      setCartItems([]);
 
-      // Redirect to orders page after successful order placement
       setTimeout(() => {
         navigate("/orders");
-      }, 1500); // Small delay to show success message
+      }, 1500);
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Failed to place order";
       setError(errorMsg);
@@ -78,8 +73,6 @@ export default function OrderPage() {
   return (
     <div className="p-20">
       <h1 className="text-3xl font-bold mb-6">Place Your Order</h1>
-
-      {/* Cart Items Section */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Your Cart</h2>
         {cartItems.length === 0 ? (
@@ -87,24 +80,32 @@ export default function OrderPage() {
         ) : (
           <ul className="space-y-4">
             {cartItems.map((item) => (
-              <li key={item.productId._id} className="border p-4 rounded-lg">
-                <p className="font-medium">
-                  {item.productId.name} ({item.productId.model})
-                </p>
-                <p>Price: ₹{item.productId.price}</p>
-                <p>Quantity: {item.quantity}</p>
+              <li
+                key={item.productId._id}
+                className="border p-4 rounded-lg flex items-center space-x-4"
+              >
+                {item.productId.image && (
+                  <img
+                    src={item.productId.image}
+                    alt={item.productId.name}
+                    className="w-16 h-16 object-cover rounded-md"
+                  />
+                )}
+                <div>
+                  <p className="font-medium">
+                    {item.productId.name} ({item.productId.model})
+                  </p>
+                  <p>Price: ₹{item.productId.price}</p>
+                  <p>Quantity: {item.quantity}</p>
+                </div>
               </li>
             ))}
           </ul>
         )}
       </div>
-
-      {/* Shipping Address & Payment Section */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Shipping & Payment</h2>
-
         <div className="space-y-4">
-          {/* Address Fields */}
           <div>
             <label className="block font-medium">Street</label>
             <input
@@ -169,8 +170,6 @@ export default function OrderPage() {
               />
             </div>
           </div>
-
-          {/* Payment Method */}
           <div>
             <label className="block font-medium">Payment Method</label>
             <select
@@ -181,8 +180,6 @@ export default function OrderPage() {
               <option value="COD">Cash on Delivery</option>
             </select>
           </div>
-
-          {/* Place Order Button */}
           <button
             onClick={placeOrder}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -190,7 +187,6 @@ export default function OrderPage() {
           >
             {loading ? "Placing Order..." : "Place Order"}
           </button>
-
           {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
       </div>

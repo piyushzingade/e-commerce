@@ -77,7 +77,8 @@ export const getUserOrders = async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(200).json(orders);
+    res.status(200).json({ orders }); // Wrap orders in an object
+
   } catch (error: any) {
     console.error("Error fetching orders:", error.message);
     res.status(500).json({ message: "Error fetching orders", error });

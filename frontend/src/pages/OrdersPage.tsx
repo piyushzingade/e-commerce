@@ -11,6 +11,7 @@ interface OrderItem {
     model: string;
     price: number;
   };
+  image: string; // Fixed Image Property
   quantity: number;
 }
 
@@ -20,7 +21,7 @@ interface Order {
   totalAmount: number;
   status: string;
   paymentStatus: string;
-  address: {
+  shippingAddress?: {
     street: string;
     city: string;
     state: string;
@@ -41,9 +42,10 @@ export default function OrdersPage() {
       setError("");
 
       try {
-        const { data } = await axios.get(`${BACKEND_URL}/api/orders`);
+        const { data } = await axios.get(`${BACKEND_URL}/api/orders`, {
+          withCredentials: true,
+        });
 
-        // Ensure orders is always an array, even if backend response is empty or malformed
         setOrders(Array.isArray(data.orders) ? data.orders : []);
       } catch (err: any) {
         setError(err.response?.data?.message || "Failed to fetch orders");
@@ -63,12 +65,9 @@ export default function OrdersPage() {
       {loading && <p>Loading orders...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Safeguard against undefined or null orders */}
-      {(orders?.length ?? 0) === 0 && !loading && (
-        <p>You have no orders yet.</p>
-      )}
+      {orders.length === 0 && !loading && <p>You have no orders yet.</p>}
 
-      {orders?.map((order) => (
+      {orders.map((order) => (
         <div key={order._id} className="border rounded-lg p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Order ID: {order._id}</h2>
@@ -98,29 +97,50 @@ export default function OrdersPage() {
             <strong>Total Amount:</strong> ₹{order.totalAmount}
           </p>
 
-          <div className="mb-4">
-            <h3 className="font-semibold mb-2">Shipping Address:</h3>
-            <p>
-              {order.address.street}, {order.address.city},{" "}
-              {order.address.state}
-            </p>
-            <p>
-              {order.address.zip}, {order.address.country}
-            </p>
-          </div>
+          {/* Shipping Address */}
+          {order.shippingAddress ? (
+            <div className="mb-4">
+              <h3 className="font-semibold mb-2">Shipping Address:</h3>
+              <p>
+                {order.shippingAddress.street}, {order.shippingAddress.city},{" "}
+                {order.shippingAddress.state}
+              </p>
+              <p>
+                {order.shippingAddress.zip}, {order.shippingAddress.country}
+              </p>
+            </div>
+          ) : (
+            <p className="text-red-500">No shipping address available.</p>
+          )}
 
+          {/* Order Items */}
           <div>
             <h3 className="font-semibold mb-2">Items:</h3>
             <ul className="space-y-2">
               {order.items.map((item) => (
-                <li key={item.productId._id} className="border p-3 rounded-lg">
-                  <p>
-                    <strong>
-                      {item.productId.name} ({item.productId.model})
-                    </strong>
-                  </p>
-                  <p>Price: ₹{item.productId.price}</p>
-                  <p>Quantity: {item.quantity}</p>
+                <li
+                  key={item.productId._id}
+                  className="border p-3 rounded-lg flex items-center space-x-4"
+                >
+                  {/* Product Image */}
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.productId.name}
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                  )}
+
+                  {/* Product Details */}
+                  <div>
+                    <p>
+                      <strong>
+                        {item.productId.name} ({item.productId.model})
+                      </strong>
+                    </p>
+                    <p>Price: ₹{item.productId.price}</p>
+                    <p>Quantity: {item.quantity}</p>
+                  </div>
                 </li>
               ))}
             </ul>

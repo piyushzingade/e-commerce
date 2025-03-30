@@ -29,14 +29,14 @@ const zod_1 = require("zod");
 // Mongoose Schema
 const CartSchema = new mongoose_1.Schema({
     userId: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
+        type: mongoose_1.Types.ObjectId,
         ref: "User",
         required: true,
     },
     items: [
         {
             productId: {
-                type: mongoose_1.default.Schema.Types.ObjectId,
+                type: mongoose_1.Types.ObjectId,
                 ref: "Product",
                 required: true,
             },

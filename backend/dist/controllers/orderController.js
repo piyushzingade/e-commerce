@@ -69,7 +69,7 @@ const getUserOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             res.status(404).json({ message: "No orders found" });
             return;
         }
-        res.status(200).json(orders);
+        res.status(200).json({ orders }); // Wrap orders in an object
     }
     catch (error) {
         console.error("Error fetching orders:", error.message);
