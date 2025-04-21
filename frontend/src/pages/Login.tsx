@@ -40,7 +40,7 @@ export default function Login() {
       localStorage.setItem("token", data.token);
 
       setTimeout(() => {
-        navigate("/"); // Change to the correct route
+        navigate("/home"); // Change to the correct route
       }, 1500);
     } catch (error) {
       toast.error("Something went wrong. Please try again.");

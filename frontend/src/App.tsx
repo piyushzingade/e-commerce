@@ -1,4 +1,9 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Layout from "./components/Layout";
@@ -15,59 +20,62 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
+          {/* Redirect root to login */}
+          <Route path="/" element={<Navigate to="/login" />} />
+
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
           {/* Protected Routes - Only logged-in users can access */}
           <Route
-            path="/"
+            path="/home"
             element={
-              <ProtectedRoute>
+
                 <Layout>
                   <Home />
                 </Layout>
-              </ProtectedRoute>
+              
             }
           />
           <Route
             path="/processors"
             element={
-              <ProtectedRoute>
+            
                 <Layout>
                   <ProcessorList />
                 </Layout>
-              </ProtectedRoute>
+             
             }
           />
           <Route
             path="/cart"
             element={
-              <ProtectedRoute>
+            
                 <Layout>
                   <CartPage />
                 </Layout>
-              </ProtectedRoute>
+            
             }
           />
           <Route
             path="/order"
             element={
-              <ProtectedRoute>
+
                 <Layout>
                   <OrderPage />
                 </Layout>
-              </ProtectedRoute>
+
             }
           />
           <Route
             path="/orders"
             element={
-              <ProtectedRoute>
+          
                 <Layout>
                   <OrdersPage />
                 </Layout>
-              </ProtectedRoute>
+              
             }
           />
 
