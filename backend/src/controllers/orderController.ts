@@ -15,14 +15,14 @@ export const placeOrder = async (req: Request, res: Response) => {
     // Fetch cart (global cart for all users — no user filter)
     const cart = await Cart.findOne().populate("items.productId").exec();
     if (!cart || !cart.items || cart.items.length === 0) {
-       res.status(400).json({ message: "Cart is empty" });
-       return;
+      res.status(400).json({ message: "Cart is empty" });
+      return;
     }
 
     for (const item of cart.items) {
       const product = await Product.findById(item.productId);
       if (!product || product.stock < item.quantity) {
-         res.status(400).json({
+        res.status(400).json({
           message: `Insufficient stock for ${product?.model || "product"}`,
         });
         return;
@@ -42,6 +42,7 @@ export const placeOrder = async (req: Request, res: Response) => {
         productId: item.productId,
         quantity: item.quantity,
         price: (item.productId as any).price,
+        image: (item.productId as any).image, // Add image field here
       })),
       totalAmount: cart.items.reduce(
         (acc, item) => acc + (item.productId as any).price * item.quantity,

@@ -54,6 +54,7 @@ export default function OrderPage() {
         paymentMethod,
         shippingAddress: address,
       });
+      console.log(data);
 
       toast.success("Order placed successfully!");
       setCartItems([]);

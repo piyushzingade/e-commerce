@@ -23,9 +23,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.orderSchema = exports.Order = void 0;
+exports.Order = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const zod_1 = require("zod");
 // Mongoose Schema
 const OrderSchema = new mongoose_1.Schema({
     userId: {
@@ -39,6 +38,7 @@ const OrderSchema = new mongoose_1.Schema({
                 ref: "Product",
                 required: true,
             },
+            image: { type: String, required: false },
             quantity: { type: Number, required: true },
             price: { type: Number, required: true },
         },
@@ -65,20 +65,3 @@ const OrderSchema = new mongoose_1.Schema({
 }, { timestamps: true });
 exports.Order = mongoose_1.default.model("Order", OrderSchema);
 // Zod Schema
-exports.orderSchema = zod_1.z.object({
-    userId: zod_1.z.string().optional(), // Optional if no user login
-    items: zod_1.z.array(zod_1.z.object({
-        productId: zod_1.z.string().min(1, "Product ID is required"),
-        quantity: zod_1.z.number().min(1, "Quantity must be at least 1"),
-        price: zod_1.z.number().min(1, "Price must be greater than 0"),
-    })),
-    totalAmount: zod_1.z.number().min(1, "Total amount must be greater than 0"),
-    shippingAddress: zod_1.z.object({
-        // ✅ Matches the mongoose schema
-        street: zod_1.z.string().min(1, "Street is required"),
-        city: zod_1.z.string().min(1, "City is required"),
-        state: zod_1.z.string().min(1, "State is required"),
-        zip: zod_1.z.string().min(1, "ZIP code is required"),
-        country: zod_1.z.string().default("India"),
-    }),
-});

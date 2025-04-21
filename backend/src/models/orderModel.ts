@@ -37,7 +37,7 @@ const OrderSchema: Schema = new Schema(
           ref: "Product",
           required: true,
         },
-        image: { type : String , required : true},
+        image: { type : String , required : false},
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
       },
@@ -68,23 +68,4 @@ const OrderSchema: Schema = new Schema(
 export const Order = mongoose.model<IOrder>("Order", OrderSchema);
 
 // Zod Schema
-export const orderSchema = z.object({
-  userId: z.string().optional(), // Optional if no user login
-  items: z.array(
-    z.object({
-      productId: z.string().min(1, "Product ID is required"),
-      image:z.string(),
-      quantity: z.number().min(1, "Quantity must be at least 1"),
-      price: z.number().min(1, "Price must be greater than 0"),
-    })
-  ),
-  totalAmount: z.number().min(1, "Total amount must be greater than 0"),
-  shippingAddress: z.object({
-    // ✅ Matches the mongoose schema
-    street: z.string().min(1, "Street is required"),
-    city: z.string().min(1, "City is required"),
-    state: z.string().min(1, "State is required"),
-    zip: z.string().min(1, "ZIP code is required"),
-    country: z.string().default("India"),
-  }),
-});
+

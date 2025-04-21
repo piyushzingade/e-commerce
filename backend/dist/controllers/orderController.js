@@ -43,6 +43,7 @@ const placeOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 productId: item.productId,
                 quantity: item.quantity,
                 price: item.productId.price,
+                image: item.productId.image, // Add image field here
             })),
             totalAmount: cart.items.reduce((acc, item) => acc + item.productId.price * item.quantity, 0),
             paymentMethod,

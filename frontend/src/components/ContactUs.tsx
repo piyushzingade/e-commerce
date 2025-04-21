@@ -4,7 +4,7 @@ const Contact = () => {
       <div className="flex flex-col items-center justify-center p-5">
         <h1 className="text-black font-bold text-2xl ">Get in Touch</h1>
         <p className="text-gray-800 font-light text-md">
-          Have questions? We're here to help you plan your perfect journey
+          Have questions about our products or need technical support? We're here to help
         </p>
       </div>
       <div className="max-w-6xl w-full flex items-center justify-center bg-white shadow-lg rounded-2xl ">
@@ -12,32 +12,33 @@ const Contact = () => {
         <div className="p-8 md:border-r border-gray-200">
           <h2 className="text-2xl font-bold mb-4">Contact Information</h2>
           <p className="text-gray-600 mb-6">
-            Have questions? We're here to help you plan your perfect journey.
+            Visit our store or reach out to our technical support team for assistance.
           </p>
 
           <div className="mb-4">
             <h3 className="font-semibold text-lg">Our Location</h3>
             <p className="text-gray-600">
-              123 Car Street, New Delhi, India - 110001
+              456 Tech Plaza, Cyber City, New Delhi, India - 110001
             </p>
           </div>
 
           <div className="mb-4">
             <h3 className="font-semibold text-lg">Phone Number</h3>
-            <p className="text-gray-600">+91 98765 43210</p>
-            <p className="text-gray-600">+91 12345 67890</p>
+            <p className="text-gray-600">Sales: +91 98765 43210</p>
+            <p className="text-gray-600">Support: +91 12345 67890</p>
           </div>
 
           <div className="mb-4">
             <h3 className="font-semibold text-lg">Email Address</h3>
-            <p className="text-gray-600">info@carrent.com</p>
-            <p className="text-gray-600">support@carrent.com</p>
+            <p className="text-gray-600">sales@techstore.com</p>
+            <p className="text-gray-600">support@techstore.com</p>
           </div>
 
           <div className="mb-4">
             <h3 className="font-semibold text-lg">Working Hours</h3>
-            <p className="text-gray-600">Monday - Saturday: 9AM - 8PM</p>
-            <p className="text-gray-600">Sunday: 10AM - 6PM</p>
+            <p className="text-gray-600">Monday - Saturday: 10AM - 9PM</p>
+            <p className="text-gray-600">Sunday: 11AM - 7PM</p>
+            <p className="text-gray-600">Technical Support: 9AM - 8PM (Mon-Sat)</p>
           </div>
 
           <div className="flex space-x-4 mt-6">
@@ -109,11 +110,14 @@ const Contact = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Subject
               </label>
-              <input
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="How can we help you?"
-              />
+              <select className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select a subject</option>
+                <option value="product-inquiry">Product Inquiry</option>
+                <option value="technical-support">Technical Support</option>
+                <option value="warranty">Warranty Service</option>
+                <option value="installation">Installation Service</option>
+                <option value="other">Other</option>
+              </select>
             </div>
 
             <div>
@@ -122,7 +126,8 @@ const Contact = () => {
               </label>
               <textarea
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Write your message here..."
+                placeholder="Describe your inquiry or technical issue..."
+                rows={4}
               ></textarea>
             </div>
 

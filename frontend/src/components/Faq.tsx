@@ -1,33 +1,33 @@
 const faqs = [
   {
-    question: "What documents do I need to rent a car?",
+    question: "What payment methods do you accept?",
     answer:
-      "You'll need a valid driving license, government ID proof, and a credit card for security deposit. For international customers, an international driving permit is required.",
+      "We accept all major credit cards, debit cards, UPI, and digital wallets. For business customers, we also offer invoice-based payment options.",
   },
   {
-    question: "Is fuel included in the rental price?",
+    question: "What's your return policy?",
     answer:
-      "Our rentals come with a full tank of fuel, and we expect the car to be returned with a full tank. Fuel costs during the trip are borne by the customer.",
+      "We offer a 7-day return policy for most products. Items must be unused, in original packaging, and accompanied by the purchase receipt. Some products may have different return terms.",
   },
   {
-    question: "What's included in the tour packages?",
+    question: "Do you offer warranty on products?",
     answer:
-      "Our tour packages include car rental, accommodation, guided tours, meals as specified, and 24/7 customer support. Additional activities can be added at extra cost.",
+      "Yes, all our products come with manufacturer warranty. Additionally, we offer extended warranty options for most products. Warranty terms vary by product category.",
   },
   {
-    question: "What's the cancellation policy?",
+    question: "Do you provide technical support?",
     answer:
-      "Free cancellation up to 24 hours before pickup. Cancellations within 24 hours may incur charges. Tour package cancellations follow specific terms provided at booking.",
+      "Yes, we offer free technical support for all products purchased from our store. Our support team is available via phone, email, and chat during business hours.",
   },
   {
-    question: "Is insurance included?",
+    question: "Can I check product availability before visiting?",
     answer:
-      "Basic insurance is included in all rentals. Additional comprehensive coverage options are available at extra cost for complete peace of mind.",
+      "Yes, our website shows real-time inventory status. You can also call our store directly to check product availability and reserve items.",
   },
   {
-    question: "Can I modify my booking?",
+    question: "Do you offer installation services?",
     answer:
-      "Yes, bookings can be modified up to 48 hours before the start date, subject to availability. Additional charges may apply based on the changes.",
+      "Yes, we provide professional installation services for various products like security systems, networking equipment, and smart home devices. Installation charges vary by product.",
   },
 ];
 
@@ -36,7 +36,7 @@ export default function Faq() {
     <section className="py-12 px-6 text-center">
       <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
       <p className="text-gray-500">
-        Find answers to common questions about our car rental and tour packages
+        Find answers to common questions about our products and services
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -54,7 +54,7 @@ export default function Faq() {
       <div className="mt-8 text-center">
         <h3 className="text-lg font-semibold">Still have questions?</h3>
         <p className="text-gray-500">
-          Our customer support team is here to help
+          Our technical support team is here to help
         </p>
         <div className="flex justify-center gap-4 mt-4">
           <button className="px-6 py-2 bg-blue-600 text-white rounded-full">
